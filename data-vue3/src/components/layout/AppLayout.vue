@@ -9,12 +9,11 @@ import AppMainLeft from './AppMainLeft.vue'
     <el-container>
       <AppAside />
       <el-container>
-        <el-header class="app-header">Header</el-header>
+        <el-header class="app-header"> </el-header>
         <el-container>
           <AppMainLeft />
           <el-main>Main</el-main>
         </el-container>
-        <el-footer class="app-footer">Footer</el-footer>
       </el-container>
     </el-container>
   </div>
@@ -26,16 +25,14 @@ import AppMainLeft from './AppMainLeft.vue'
   height: 100vh;
   display: flex;
   flex-direction: column;
-
+  background-color: rgb(252,251,249);
 }
 .el-footer {
   height: 50px;
-  background-color: #111;
-  color: #eee;
+  color: #6C6E72;
 }
 .el-header {
   height: 25px;
-  background-color: #fff;
   color: #000;
 }
 
