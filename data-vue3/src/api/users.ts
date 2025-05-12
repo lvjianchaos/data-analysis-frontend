@@ -50,3 +50,56 @@ export const register = (registerInfo: RegisterInfo) => {
     data: registerInfo,
   })
 }
+
+type UserInfo = {
+  code: number
+  message: string
+  data: {
+    username: string
+    name: string
+  }
+}
+
+// 获取用户信息
+export const getUserInfo = () => {
+  return request<UserInfo>({
+    method: 'get',
+    url: 'api/account/get_info',
+  })
+}
+
+// 用户退出
+export const logout = () => {
+  return request({
+    method: 'post',
+    url: 'api/auth/logout',
+  })
+}
+
+// 刷新token
+type RefreshToken = {
+  code: number
+  message: string
+  data: {
+    access_token: string
+    refresh_token: string
+    token_type: string
+  }
+}
+
+let promiseRefreshToken: Promise<any>
+let isRefreshing = false
+export const refreshToken = () => {
+  if (isRefreshing) return promiseRefreshToken
+  isRefreshing = true
+  promiseRefreshToken = request<RefreshToken>({
+    method: 'post',
+    url: 'api/auth/refresh',
+    data: {
+      refresh_token: localStorage.getItem('refresh_token'),
+    },
+  }).finally(() => {
+    isRefreshing = false
+  })
+  return promiseRefreshToken
+}

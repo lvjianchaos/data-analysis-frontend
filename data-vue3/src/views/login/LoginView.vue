@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus/es/components/form/index.mjs'
 import { login } from '@/api/users'
-import {useTokenStore} from '@/stores/token'
+import { useTokenStore } from '@/stores/token'
+import { useRoute } from 'vue-router'
 
 const router = useRouter()
 const store = useTokenStore()
+const route = useRoute()
 
 const form = reactive({
   username: '',
@@ -41,7 +43,7 @@ const onSubmit = async() => {
 
   ElMessage.success(data.message)
 
-  router.push('/')
+  router.push(route.query.redirect as string || '/')
 
 }
 

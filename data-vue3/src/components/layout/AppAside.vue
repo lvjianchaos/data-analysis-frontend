@@ -1,10 +1,37 @@
 <script lang="ts" setup>
 import router from '@/router'
+import { getUserInfo,logout } from '@/api/users'
+import { useTokenStore } from '@/stores/token'
 
+const userInfo = ref({
+  username: 'Chaos',
+  portrait: 'https://cdn.jsdelivr.net/gh/lvjianchaos/Images/test/%E7%86%8F.jpg'
+})
 
-const logout = () => {
-  localStorage.removeItem('token')
-  router.push('/login')
+getUserInfo().then(res => {
+  userInfo.value.username = res.data.data.username
+  // userInfo.value.portrait = res.data.data.portrait
+})
+
+const handleLogout = async () => {
+  // 询问确认
+  await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).catch(()=>{
+    ElMessage.info('取消退出操作')
+    return new Promise(()=>{})
+  })
+  // 执行退出
+  await logout().catch(()=>{
+    ElMessage.error('退出登录失败')
+    return new Promise(()=>{})
+  })
+  ElMessage.success('退出登录成功')
+  // 清空token
+  useTokenStore().clearToken()
+  router.push({name: 'login'})
 }
 
 const drawer = ref(false)
@@ -25,9 +52,8 @@ const drawer = ref(false)
           <div style="display: flex; gap: 10px; flex-direction: column;">
             <el-avatar
             :size="50"
-            src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" >
+            :src="userInfo.portrait" >
             </el-avatar>
-            <span style="font-weight: 800;">Chaos</span>
           </div>
         </template>
         <template #default>
@@ -41,14 +67,14 @@ const drawer = ref(false)
               <div style="display: flex; align-items: center;">
                 <el-avatar
                   :size="60"
-                  src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
+                  :src="userInfo.portrait"
                   style="margin-right: 8px;"
                 />
-                <p style="font-size: large; font-weight: 600; padding-left: 10px;">Chaos</p>
+                <p style="font-size: large; font-weight: 600; padding-left: 10px;">{{ userInfo.username }}</p>
               </div>
             </el-card>
 
-            <el-button type="danger" plain @click="logout">登出</el-button>
+            <el-button type="danger" plain @click="handleLogout">登出</el-button>
           </div>
         </template>
       </el-popover>
