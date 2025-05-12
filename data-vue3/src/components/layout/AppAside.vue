@@ -52,37 +52,55 @@ const drawer = ref(false)
           </div>
         </template>
       </el-popover>
-      <div class="history-record" style="bottom: 200px;position: absolute;">
-        <div style="border: 10px solid rgb(244,235,223);
-  border-radius: 10px; display: flex;;flex-direction: column;justify-content: center;align-items: center;background-color: rgb(244,235,223);" @click="drawer = true">
+    </div>
+    <div class="history-record">
+        <div class="history-record-btn" @click="drawer = true">
           <el-icon :size="30"><IEpClock /></el-icon>
-          <el-text class="mx-1" type="info" style="padding-top: 5px;font-size: small;">历史记录</el-text>
+          <el-text class="mx-1" type="info">历史记录</el-text>
         </div>
 
         <el-drawer v-model="drawer" title="历史记录">
-          <span>Hi there!</span>
+          <span>TODO历史记录表格</span>
         </el-drawer>
-      </div>
     </div>
+
   </el-aside>
 </template>
 
 <style lang="scss" scoped>
 .app-aside {
-  background-color: rgb(252,251,249);
-  box-shadow: 5px 0 5px -2px rgba(0, 0, 0, 0.3);
-  width: 120px;
-}
-.logo {
-  width:120px;
-  padding-top: 10px;
+    background-color: rgb(252,251,249);
+    box-shadow: 5px 0 5px -2px rgba(0, 0, 0, 0.3);
+    width: 120px;
+    align-items: center;
+    flex-direction: column;
+    display:flex;
+  .logo {
+    width:120px;
+    padding-top: 10px;
+  }
+  .avatar {
+    padding-top: 40px;
+  }
+  .history-record {
+    align-items: center;
+    justify-content: center;
+    .history-record-btn {
+      border: 10px solid rgb(244,235,223);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: rgb(244,235,223);
+      .mx-1 {
+        padding-top: 5px;
+        font-size: small;
+      }
+    }
+
+  }
 }
 
-.avatar {
-  display:flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-top: 40px;
-}
+
+
 </style>
