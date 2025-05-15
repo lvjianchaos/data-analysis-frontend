@@ -145,83 +145,84 @@ function handleRecordCommand(command: string, item: SessionInfo) {
 
 <template>
   <el-aside :width="isCollapse ? '68px' : '260px'">
-    <div class="logo-container" :class="{ collapsed: isCollapse }">
-      <router-link to="/" class="logo">
-        <img v-if="isCollapse" src="@/assets/logo.png" alt="logo" class="logo-img"/>
-        <img v-else src="@/assets/logo-text.png" alt="logo" class="logo-text"/>
-      </router-link>
-      <el-button text @click="isCollapse = !isCollapse" round class="expand-btn">
-          <el-icon v-if="isCollapse" :size="25">
-            <IEpExpand />
-          </el-icon>
-          <el-icon v-else :size="25">
-            <IEpFold />
-          </el-icon>
-      </el-button>
-    </div>
-    <el-tooltip
-        class="box-item"
-        effect="dark"
-        content="上传数据文件"
-        placement="right-end"
-      >
-      <el-button
-        plain
-        :style="isCollapse
-          ? 'width:44px;height:44px;margin-left:12px;display:flex;align-items:center;justify-content:center;padding:0;'
-          : 'width:131px;height:44px;margin-left:20px;display:flex;align-items:center;justify-content:center;'"
-        @click="()=>{
-          activeSessionId = ''
-          router.push({name: 'index'})
-        }"
-      >
-        <el-icon :size="20">
-          <IEpUpload />
-        </el-icon>
-        <span v-if="!isCollapse" style="font-size:medium;font-weight:700;margin-left:8px;">新建数据集</span>
-      </el-button>
-    </el-tooltip>
-
-    <el-scrollbar
-      v-if="!isCollapse"
-      height="400px"
-      class="dataset-scrollbar"
-    >
-      <div
-        v-for="item in datasetList"
-        :key="item.session_id"
-        class="dataset-item"
-        :class="{ 'is-active': item.session_id === activeSessionId }"
-        @click="goToDataset(item.session_id)"
-        style="position: relative;"
-      >
-        <el-icon style="margin-right:8px;"><IEpDocument /></el-icon>
-        <span v-if="!isCollapse" class="dataset-title" :title="item.name">{{ item.name }}</span>
-        <el-dropdown
-          v-if="!isCollapse"
-          @command="(command) => handleRecordCommand(command, item)"
-          trigger="click"
-          class="record-dropdown"
-        >
-          <span class="more-btn" @click.stop>
-            <el-icon><IEpMoreFilled /></el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="rename">
-                <el-icon style="margin-right:4px;"><IEpEdit /></el-icon>
-                重命名
-              </el-dropdown-item>
-              <el-dropdown-item command="delete" divided>
-                <el-icon style="margin-right:4px;color:#f56c6c;"><IEpDelete /></el-icon>
-                <span style="color:#f56c6c;">删除</span>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+    <div class="aside-content">
+      <div class="logo-container" :class="{ collapsed: isCollapse }">
+        <router-link to="/" class="logo">
+          <img v-if="isCollapse" src="@/assets/logo.png" alt="logo" class="logo-img"/>
+          <img v-else src="@/assets/logo-text.png" alt="logo" class="logo-text"/>
+        </router-link>
+        <el-button text @click="isCollapse = !isCollapse" round class="expand-btn">
+            <el-icon v-if="isCollapse" :size="25">
+              <IEpExpand />
+            </el-icon>
+            <el-icon v-else :size="25">
+              <IEpFold />
+            </el-icon>
+        </el-button>
       </div>
-    </el-scrollbar>
+      <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="上传数据文件"
+          placement="right-end"
+        >
+        <el-button
+          plain
+          :style="isCollapse
+            ? 'width:44px;height:44px;margin-left:12px;display:flex;align-items:center;justify-content:center;padding:0;'
+            : 'width:131px;height:44px;margin-left:20px;display:flex;align-items:center;justify-content:center;'"
+          @click="()=>{
+            activeSessionId = ''
+            router.push({name: 'index'})
+          }"
+        >
+          <el-icon :size="20">
+            <IEpUpload />
+          </el-icon>
+          <span v-if="!isCollapse" style="font-size:medium;font-weight:700;margin-left:8px;">新建数据集</span>
+        </el-button>
+      </el-tooltip>
 
+      <el-scrollbar
+        v-if="!isCollapse"
+        height="400px"
+        class="dataset-scrollbar"
+      >
+        <div
+          v-for="item in datasetList"
+          :key="item.session_id"
+          class="dataset-item"
+          :class="{ 'is-active': item.session_id === activeSessionId }"
+          @click="goToDataset(item.session_id)"
+          style="position: relative;"
+        >
+          <el-icon style="margin-right:8px;"><IEpDocument /></el-icon>
+          <span v-if="!isCollapse" class="dataset-title" :title="item.name">{{ item.name }}</span>
+          <el-dropdown
+            v-if="!isCollapse"
+            @command="(command) => handleRecordCommand(command, item)"
+            trigger="click"
+            class="record-dropdown"
+          >
+            <span class="more-btn" @click.stop>
+              <el-icon><IEpMoreFilled /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="rename">
+                  <el-icon style="margin-right:4px;"><IEpEdit /></el-icon>
+                  重命名
+                </el-dropdown-item>
+                <el-dropdown-item command="delete" divided>
+                  <el-icon style="margin-right:4px;color:#f56c6c;"><IEpDelete /></el-icon>
+                  <span style="color:#f56c6c;">删除</span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </el-scrollbar>
+    </div>
     <div class="user-info-popover-wrapper">
       <el-popover
         :width="300"
@@ -232,8 +233,8 @@ function handleRecordCommand(command: string, item: SessionInfo) {
           <el-button
             plain
             :style="isCollapse
-              ? 'width:44px;height:44px;margin-left:12px;display:flex;align-items:center;justify-content:center;padding:0;'
-              : 'width:240px;height:44px;margin-left:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;'"
+              ? 'width:44px;height:44px;margin-left:3px;display:flex;align-items:center;justify-content:center;padding:0;'
+              : 'width:240px;height:44px;margin-left:3px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;'"
           >
             <el-avatar :src="userInfo.portrait" />
             <span v-if="!isCollapse" style="font-size:medium;font-weight:700;margin-left:8px;">个人信息</span>
@@ -258,13 +259,25 @@ function handleRecordCommand(command: string, item: SessionInfo) {
 
 <style lang="scss" scoped>
 .el-aside {
-  background-color: rgb(249,251,255);
+  background-color: #f9fbff;
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
   overflow: hidden;
   height: 100vh;
-  position: fixed;
+  .aside-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .user-info-popover-wrapper {
+    flex-shrink: 0;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
   .logo-container {
     display: flex;
     align-items: center;
@@ -361,17 +374,6 @@ function handleRecordCommand(command: string, item: SessionInfo) {
   white-space: nowrap;
   display: inline-block;
   vertical-align: middle;
-}
-
-.user-info-popover-wrapper {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding-bottom: 16px;
-  display: flex;
-  justify-content: center;
-  z-index: 10;
 }
 
 .user-card-content {

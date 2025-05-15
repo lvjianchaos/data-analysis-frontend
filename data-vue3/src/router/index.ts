@@ -14,14 +14,14 @@ const router = createRouter({
       },
       children: [
         {
+          path: '',
+          name: 'index',
+          component: () => import('../views/IndexView.vue'),
+        },
+        {
           path: '/data/:id',
           name: 'data',
           component: () => import('../views/data/DataView.vue'),
-        },
-        {
-          path: '/index',
-          name: 'index',
-          component: () => import('../views/IndexView.vue'),
         },
         {
           path: '/test',

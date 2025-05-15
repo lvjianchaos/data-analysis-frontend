@@ -6,11 +6,9 @@ import AppAside from './AppAside.vue';
   <div class="common-layout">
     <el-container>
       <AppAside />
-      <el-container>
-        <el-main>
-          <router-view />
-        </el-main>
-      </el-container>
+      <el-main>
+        <router-view />
+      </el-main>
     </el-container>
   </div>
 </template>
@@ -25,8 +23,10 @@ import AppAside from './AppAside.vue';
     .el-main {
       background-color: #fff;
       color: #333;
-      text-align: center;
-      line-height: 160px;
+      min-height: 100vh;
+      padding: 0;
+      box-sizing: border-box;
+      overflow: auto;
     }
   }
 }
