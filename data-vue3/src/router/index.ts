@@ -12,6 +12,23 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
       },
+      children: [
+        {
+          path: '/data/:id',
+          name: 'data',
+          component: () => import('../views/data/DataView.vue'),
+        },
+        {
+          path: '/index',
+          name: 'index',
+          component: () => import('../views/IndexView.vue'),
+        },
+        {
+          path: '/test',
+          name: 'test',
+          component: () => import('../views/test/TestView.vue'),
+        },
+      ],
     },
     {
       path: '/login',

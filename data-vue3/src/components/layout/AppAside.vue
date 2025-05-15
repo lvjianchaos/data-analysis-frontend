@@ -1,8 +1,12 @@
 <script lang="ts" setup>
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import router from '@/router'
-import { getUserInfo,logout } from '@/api/users'
+import { getUserInfo } from '@/api/users'
+import {type SessionInfo, updateSessionName,getSessions,addSession,deleteSession } from '@/api/sessions'
 import { useTokenStore } from '@/stores/token'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const userInfo = ref({
   username: 'Chaos',
   portrait: 'https://cdn.jsdelivr.net/gh/lvjianchaos/Images/test/%E7%86%8F.jpg'
@@ -23,110 +27,370 @@ const handleLogout = async () => {
     ElMessage.info('取消退出操作')
     return new Promise(()=>{})
   })
-  // 执行退出
-  await logout().catch(()=>{
-    ElMessage.error('退出登录失败')
-    return new Promise(()=>{})
-  })
+  // // 执行退出
+  // await logout().catch(()=>{
+  //   ElMessage.error('退出登录失败')
+  //   return new Promise(()=>{})
+  // })
   ElMessage.success('退出登录成功')
   // 清空token
   useTokenStore().clearToken()
   router.push({name: 'login'})
 }
 
-const drawer = ref(false)
+const isCollapse = ref(true)
+
+const COLLAPSE_WIDTH = 900 // 阈值，可根据需要调整
+
+function handleResize() {
+  isCollapse.value = window.innerWidth < COLLAPSE_WIDTH
+}
+
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+const datasetList = ref<SessionInfo[]>([
+  { session_id: '1', name: '前端css中如何让一个元素在它的',timestamp: 1680000000000 },
+  { session_id: '2', name: 'Vue3路由历史记录功能实现', timestamp: 1680000000000 },
+  { session_id: '3', name: 'OpenGL贝塞尔曲线生成代码实现', timestamp: 1680000000000 },
+  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
+  { session_id: '5', name: 'CS61A', timestamp: 1680000000000 },
+  { session_id: '6', name: '配置相关问题', timestamp: 1680000000000 },
+  { session_id: '6', name: '配置相关问题', timestamp: 1680000000000 },
+  { session_id: '6', name: '配置相关问题', timestamp: 1680000000000 },
+  { session_id: '6', name: '配置相关问题', timestamp: 1680000000000 },
+  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
+  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
+  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
+  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
+  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
+  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
+])
+
+getSessions().then(res => {
+  datasetList.value = res.data.data
+})
+
+const activeSessionId = ref<string>('')
+
+// 监听路由参数 id 的变化
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (typeof newId === 'string') {
+      activeSessionId.value = newId
+    } else {
+      activeSessionId.value = ''
+    }
+  },
+  { immediate: true }
+)
+
+function goToDataset(id: string) {
+  activeSessionId.value = id
+  router.push({ name: 'data', params: { id } })
+}
+
+function handleRecordCommand(command: string, item: SessionInfo) {
+  if (command === 'rename') {
+    ElMessageBox.prompt('请输入新的名称', '重命名', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputValue: item.name,
+      inputValidator: (value) => {
+        if (!value) {
+          return '名称不能为空'
+        }
+        return true
+      }
+    }).then(async ({ value: newName }) => {
+      // 这里应该调用后端 API 更新名称
+      await updateSessionName(item.session_id, newName)
+      ElMessage.success('重命名成功')
+      // 更新本地数据
+      const index = datasetList.value.findIndex(d => d.session_id === item.session_id)
+      if (index !== -1) {
+        datasetList.value[index].name = newName
+      }
+    }).catch((error) => {
+      if (error !== 'cancel') {
+        ElMessage.error('重命名失败')
+      }
+    })
+  } else if (command === 'delete') {
+    ElMessageBox.confirm('确定要删除这条记录吗？', '警告', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(async () => {
+      // 这里应该调用后端 API 删除记录
+      await deleteSession(item.session_id)
+      ElMessage.success('删除成功')
+      // 更新本地数据
+      datasetList.value = datasetList.value.filter(d => d.session_id !== item.session_id)
+    }).catch((error) => {
+      if (error !== 'cancel') {
+        ElMessage.error('删除失败')
+      }
+    })
+  }
+}
 </script>
 
 <template>
-  <el-aside class="app-aside">
-    <!--侧边栏logo-->
-    <img src="../../assets/logo.png" alt="logo" class="logo">
-    <!--侧边栏用户信息-->
-    <div class='avatar'>
+  <el-aside :width="isCollapse ? '68px' : '260px'">
+    <div class="logo-container" :class="{ collapsed: isCollapse }">
+      <router-link to="/" class="logo">
+        <img v-if="isCollapse" src="@/assets/logo.png" alt="logo" class="logo-img"/>
+        <img v-else src="@/assets/logo-text.png" alt="logo" class="logo-text"/>
+      </router-link>
+      <el-button text @click="isCollapse = !isCollapse" round class="expand-btn">
+          <el-icon v-if="isCollapse" :size="25">
+            <IEpExpand />
+          </el-icon>
+          <el-icon v-else :size="25">
+            <IEpFold />
+          </el-icon>
+      </el-button>
+    </div>
+    <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="上传数据文件"
+        placement="right-end"
+      >
+      <el-button
+        plain
+        :style="isCollapse
+          ? 'width:44px;height:44px;margin-left:12px;display:flex;align-items:center;justify-content:center;padding:0;'
+          : 'width:131px;height:44px;margin-left:20px;display:flex;align-items:center;justify-content:center;'"
+        @click="()=>{
+          activeSessionId = ''
+          router.push({name: 'index'})
+        }"
+      >
+        <el-icon :size="20">
+          <IEpUpload />
+        </el-icon>
+        <span v-if="!isCollapse" style="font-size:medium;font-weight:700;margin-left:8px;">新建数据集</span>
+      </el-button>
+    </el-tooltip>
+
+    <el-scrollbar
+      v-if="!isCollapse"
+      height="400px"
+      class="dataset-scrollbar"
+    >
+      <div
+        v-for="item in datasetList"
+        :key="item.session_id"
+        class="dataset-item"
+        :class="{ 'is-active': item.session_id === activeSessionId }"
+        @click="goToDataset(item.session_id)"
+        style="position: relative;"
+      >
+        <el-icon style="margin-right:8px;"><IEpDocument /></el-icon>
+        <span v-if="!isCollapse" class="dataset-title" :title="item.name">{{ item.name }}</span>
+        <el-dropdown
+          v-if="!isCollapse"
+          @command="(command) => handleRecordCommand(command, item)"
+          trigger="click"
+          class="record-dropdown"
+        >
+          <span class="more-btn" @click.stop>
+            <el-icon><IEpMoreFilled /></el-icon>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="rename">
+                <el-icon style="margin-right:4px;"><IEpEdit /></el-icon>
+                重命名
+              </el-dropdown-item>
+              <el-dropdown-item command="delete" divided>
+                <el-icon style="margin-right:4px;color:#f56c6c;"><IEpDelete /></el-icon>
+                <span style="color:#f56c6c;">删除</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
+    </el-scrollbar>
+
+    <div class="user-info-popover-wrapper">
       <el-popover
         :width="300"
         popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"
-        placement="right-start"
-        >
+        placement="right-end"
+      >
         <template #reference>
-          <div style="display: flex; gap: 10px; flex-direction: column;">
-            <el-avatar
-            :size="50"
-            :src="userInfo.portrait" >
-            </el-avatar>
-          </div>
+          <el-button
+            plain
+            :style="isCollapse
+              ? 'width:44px;height:44px;margin-left:12px;display:flex;align-items:center;justify-content:center;padding:0;'
+              : 'width:240px;height:44px;margin-left:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;'"
+          >
+            <el-avatar :src="userInfo.portrait" />
+            <span v-if="!isCollapse" style="font-size:medium;font-weight:700;margin-left:8px;">个人信息</span>
+          </el-button>
         </template>
         <template #default>
-        <!--添加用户详情信息-->
-          <div
-            class="userinfo"
-            style="display: flex; gap: 16px;flex-direction: column;"
+          <el-card
+            shadow="hover"
+            class="user-card-content"
           >
-            <span>目前登陆账户</span>
-            <el-card style="max-width: 480px;" shadow="hover">
-              <div style="display: flex; align-items: center;">
-                <el-avatar
-                  :size="60"
-                  :src="userInfo.portrait"
-                  style="margin-right: 8px;"
-                />
-                <p style="font-size: large; font-weight: 600; padding-left: 10px;">{{ userInfo.username }}</p>
-              </div>
-            </el-card>
-
-            <el-button type="danger" plain @click="handleLogout">登出</el-button>
-          </div>
+            <div style="display: flex; align-items: center;">
+              <el-avatar :size="70" :src="userInfo.portrait" />
+              <span style="margin-left: 25px;" class="user-card-name">{{ userInfo.username }}</span>
+            </div>
+          </el-card>
+          <el-button type="danger" plain @click="handleLogout" style="width: 258px;">退出登录</el-button>
         </template>
       </el-popover>
     </div>
-    <div class="history-record">
-        <div class="history-record-btn" @click="drawer = true">
-          <el-icon :size="30"><IEpClock /></el-icon>
-          <el-text class="mx-1" type="info">历史记录</el-text>
-        </div>
-
-        <el-drawer v-model="drawer" title="历史记录">
-          <span>TODO历史记录表格</span>
-        </el-drawer>
-    </div>
-
   </el-aside>
 </template>
 
 <style lang="scss" scoped>
-.app-aside {
-    background-color: rgb(252,251,249);
-    box-shadow: 5px 0 5px -2px rgba(0, 0, 0, 0.3);
-    width: 120px;
+.el-aside {
+  background-color: rgb(249,251,255);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  height: 100vh;
+  position: fixed;
+  .logo-container {
+    display: flex;
     align-items: center;
-    flex-direction: column;
-    display:flex;
-  .logo {
-    width:120px;
-    padding-top: 10px;
-  }
-  .avatar {
-    padding-top: 40px;
-  }
-  .history-record {
-    align-items: center;
-    justify-content: center;
-    .history-record-btn {
-      border: 10px solid rgb(244,235,223);
-      border-radius: 10px;
-      display: flex;
+    transition: flex-direction 0.3s;
+    padding-bottom: 30px;
+    &.collapsed {
       flex-direction: column;
-      align-items: center;
-      background-color: rgb(244,235,223);
-      .mx-1 {
-        padding-top: 5px;
-        font-size: small;
+      align-items: flex-start;
+      .expand-btn {
+        margin: 30px 0 0 7px;
       }
     }
-
+    &:not(.collapsed) {
+      flex-direction: row;
+      .expand-btn {
+        margin-left: auto;
+        margin-right: 10px;
+        margin-top: 30px;
+      }
+    }
+    .logo {
+      img {
+        padding-top: 20px;
+        padding-left: 10px;
+      }
+      .logo-img {
+          width: 50px;
+        }
+      .logo-text {
+        width: 130px;
+      }
+    }
+  }
+  .el-scrollbar {
+    margin-top:20px;
   }
 }
 
+.dataset-scrollbar {
+  margin-top: 20px;
+  flex: 1;
+}
+.dataset-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+  font-size: 15px;
 
+  &.is-active {
+    background: #ecf5ff;
+    color: #409eff;
 
+    .el-icon {
+      color: #409eff;
+    }
+  }
+}
+.dataset-item:hover {
+  background: #f0f4fa;
+
+  &.is-active {
+    background: #ecf5ff;
+  }
+}
+
+.more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: background 0.2s;
+  cursor: pointer;
+  margin-left: auto;
+}
+.more-btn:hover {
+  background: #f0f0f0;
+}
+.record-dropdown {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dataset-title {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.user-info-popover-wrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+
+.user-card-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 200px;
+  min-height: 48px;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.user-card-name {
+  font-size: 23px;
+  font-weight: 900;
+  color: #333;
+}
 </style>

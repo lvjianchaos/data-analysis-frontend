@@ -87,7 +87,7 @@ type RefreshToken = {
   }
 }
 
-let promiseRefreshToken: Promise<any>
+let promiseRefreshToken: Promise<unknown>
 let isRefreshing = false
 export const refreshToken = () => {
   if (isRefreshing) return promiseRefreshToken
