@@ -21,7 +21,7 @@ export const deleteSession = (session_id: string) => {
   })
 }
 
-type SessionsResult = {
+export type SessionsResult = {
   code: number
   message: string
   data: SessionInfo[]

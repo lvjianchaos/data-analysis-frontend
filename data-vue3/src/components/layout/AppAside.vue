@@ -1,8 +1,9 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import router from '@/router'
 import { getUserInfo } from '@/api/users'
-import {type SessionInfo, updateSessionName,getSessions,addSession,deleteSession } from '@/api/sessions'
+import {type SessionInfo, updateSessionName,getSessions,deleteSession } from '@/api/sessions'
 import { useTokenStore } from '@/stores/token'
 import { useRoute } from 'vue-router'
 
@@ -55,23 +56,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-const datasetList = ref<SessionInfo[]>([
-  { session_id: '1', name: '前端css中如何让一个元素在它的',timestamp: 1680000000000 },
-  { session_id: '2', name: 'Vue3路由历史记录功能实现', timestamp: 1680000000000 },
-  { session_id: '3', name: 'OpenGL贝塞尔曲线生成代码实现', timestamp: 1680000000000 },
-  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
-  { session_id: '5', name: 'CS61A', timestamp: 1680000000000 },
-  { session_id: '6', name: '配置相关问题', timestamp: 1680000000000 },
-  { session_id: '6', name: '配置相关问题', timestamp: 1680000000000 },
-  { session_id: '6', name: '配置相关问题', timestamp: 1680000000000 },
-  { session_id: '6', name: '配置相关问题', timestamp: 1680000000000 },
-  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
-  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
-  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
-  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
-  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
-  { session_id: '4', name: '数据分析Web应用前端设计方案', timestamp: 1680000000000 },
-])
+const datasetList = ref<SessionInfo[]>([])
 
 getSessions().then(res => {
   datasetList.value = res.data.data
@@ -97,7 +82,7 @@ function goToDataset(id: string) {
   router.push({ name: 'data', params: { id } })
 }
 
-function handleRecordCommand(command: string, item: SessionInfo) {
+const handleRecordCommand = (command: string, item: any) => {
   if (command === 'rename') {
     ElMessageBox.prompt('请输入新的名称', '重命名', {
       confirmButtonText: '确定',
@@ -200,7 +185,7 @@ function handleRecordCommand(command: string, item: SessionInfo) {
           <span v-if="!isCollapse" class="dataset-title" :title="item.name">{{ item.name }}</span>
           <el-dropdown
             v-if="!isCollapse"
-            @command="(command) => handleRecordCommand(command, item)"
+            @command="(command:any) => handleRecordCommand(command, item)"
             trigger="click"
             class="record-dropdown"
           >

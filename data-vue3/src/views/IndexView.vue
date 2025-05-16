@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { fileUpload } from '@/api/file'
 import { useRouter } from 'vue-router'
+import { addSession } from '@/api/sessions'
 
 const uploadRef = ref()
 const router = useRouter()
@@ -28,7 +29,8 @@ async function handleUpload({ file }: { file: File }) {
   const session_id = uuidv4()
   const name = file.name
   try {
-    await fileUpload(file, session_id, name)
+    await fileUpload(file, session_id)
+    await addSession({ session_id, name })
     ElMessage.success('上传成功')
     router.push({ name: 'data', params: { id: session_id } })
   } catch {

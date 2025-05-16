@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-export const fileUpload = (file: File, session_id: string, name: string) => {
+export const fileUpload = (file: File, session_id: string) => {
   const formData = new FormData()
   formData.append('file', file)
   return request({
@@ -8,7 +8,6 @@ export const fileUpload = (file: File, session_id: string, name: string) => {
     data: formData,
     params: {
       session_id,
-      name,
     },
   })
 }

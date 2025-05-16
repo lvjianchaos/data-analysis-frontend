@@ -6,9 +6,9 @@ import AppAside from './AppAside.vue';
   <div class="common-layout">
     <el-container>
       <AppAside />
-      <el-main>
-        <router-view />
-      </el-main>
+        <el-main>
+          <router-view />
+        </el-main>
     </el-container>
   </div>
 </template>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import request from '@/utils/request'
 
 // 用户登录-参数类型
@@ -87,7 +88,7 @@ type RefreshToken = {
   }
 }
 
-let promiseRefreshToken: Promise<unknown>
+let promiseRefreshToken: Promise<any>
 let isRefreshing = false
 export const refreshToken = () => {
   if (isRefreshing) return promiseRefreshToken
